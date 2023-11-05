@@ -1,0 +1,317 @@
+diff --git a/part1/question1.py b/part1/question1.py
+index 5c99fdb..50c9166 100644
+--- a/part1/question1.py
++++ b/part1/question1.py
+@@ -20,14 +20,20 @@ def get_city_temperature(city):
+       return 17
+    if city == "San Francisco":
+       return 16
++   if city == "New York":
++      return 14
+ 
+ def get_city_weather(city):
+ 
+   sky_condition = None
+ 
++  if city == "Quito":
++      sky_condition = "sunny"
+   if city == "Sao Paulo":
+      sky_condition = "cloudy"
+-  elif city == "New York":
++  if city == "San Francisco":
++      sky_condition = "sunny"
++  if city == "New York":
+      sky_condition = "rainy"
+ 
+   temperature = get_city_temperature(city)
+diff --git a/part1/question2.py b/part1/question2.py
+index 34a9b01..ff282e4 100644
+--- a/part1/question2.py
++++ b/part1/question2.py
+@@ -18,4 +18,7 @@
+ swapper = None
+ 
+ def run_swapper(list_of_tuples):
+-  return list(map(swapper, list_of_tuples))
+\ No newline at end of file
++  return list(map(swapper, list_of_tuples))
++
++def swapper(tuple):
++  return tuple[::-1]
+\ No newline at end of file
+diff --git a/part1/question3.py b/part1/question3.py
+index 04fab99..b0e533b 100644
+--- a/part1/question3.py
++++ b/part1/question3.py
+@@ -25,9 +25,40 @@
+ # The `alchemy_combine()` function will use your oven. You can see the expected 
+ # formulas and their outputs in the test file, `question3_test.py`.
+ 
++# Oven class
++class Oven:
++    def __init__(self):
++        self.ingredients = []
++        self.output = None
++
++    def add(self, item):
++        self.ingredients.append(item)
++
++    def freeze(self):
++        if len(self.ingredients) == 2:
++            if ("water" in self.ingredients) and ("air" in self.ingredients):
++                self.output = "snow"
++
++    def boil(self):
++
++        if len(self.ingredients) == 2:
++            if ("lead" in self.ingredients) and ("mercury" in self.ingredients):
++                self.output = "gold"
++
++        if len(self.ingredients) == 3:
++            if ("cheese" in self.ingredients) and ("dough" in self.ingredients) and ("tomato" in self.ingredients):
++                self.output = "pizza"
++
++    def wait(self):
++        self.output = "cooked"
++
++    def get_output(self):
++        return self.output
++
++
+ # This function should return an oven instance!
+ def make_oven():
+-  None
++    return Oven()
+ 
+ def alchemy_combine(oven, ingredients, temperature):
+   
+diff --git a/part1/question3_test.py b/part1/question3_test.py
+index 6cb6c89..c1018de 100644
+--- a/part1/question3_test.py
++++ b/part1/question3_test.py
+@@ -1,3 +1,5 @@
++from question3 import alchemy_combine, make_oven
++
+ def test_alchemy_combine():
+ 
+   assert alchemy_combine(
+diff --git a/part1/question4.py b/part1/question4.py
+index 1e1b2bf..ca0944a 100644
+--- a/part1/question4.py
++++ b/part1/question4.py
+@@ -22,10 +22,11 @@ import pets_db
+ # Write SQL to select the pets that are owned by nobody.
+ # The output should be a list of tuples in the format: (<pet name>, <species>, <age>)
+ 
+-sql_pets_owned_by_nobody = """
+ 
+-Your SQL here.
++# ./question4_test.py::test_question4_pets_owned_by_nobody Failed: [undefined]sqlite3.OperationalError: no such column: owner_id
++sql_pets_owned_by_nobody = """
+ 
++SELECT name, species, age FROM animals WHERE animal_id NOT IN (SELECT pet_id FROM people_animals);
+ """
+ 
+ # Part 4.B:
+@@ -34,7 +35,7 @@ Your SQL here.
+ 
+ sql_pets_older_than_owner = """
+ 
+-Your SQL here.
++SELECT COUNT(*) FROM animals WHERE age > (SELECT age FROM people WHERE person_id = (SELECT owner_id FROM people_animals WHERE pet_id = animals.animal_id));
+ 
+ """
+ 
+@@ -43,6 +44,16 @@ Your SQL here.
+ # The output should be a list of tuples in the format: (<person name>, <pet name>, <species>)
+ sql_only_owned_by_bessie = """ 
+ 
+-Your SQL here.
++SELECT p.name AS person_name, a.name AS pet_name, a.species
++FROM people AS p
++JOIN people_animals AS pa ON p.person_id = pa.owner_id
++JOIN animals AS a ON pa.pet_id = a.animal_id
++WHERE p.name = 'bessie'
++AND NOT EXISTS (
++  SELECT 1
++  FROM people_animals AS pa2
++  WHERE pa2.pet_id = pa.pet_id
++  AND pa2.owner_id <> p.person_id
++);
+ 
+ """
+\ No newline at end of file
+diff --git a/part1/question5.py b/part1/question5.py
+index f76654f..2d766ae 100644
+--- a/part1/question5.py
++++ b/part1/question5.py
+@@ -20,8 +20,12 @@
+ 
+ sql_create_favorite_foods = """
+ 
+-Your SQL here.
+-
++CREATE TABLE favorite_foods (
++    food_id INTEGER PRIMARY KEY,
++    name TEXT,
++    vegetarian INTEGER
++    );
++    
+ """
+ 
+ # Part 5.B:
+@@ -30,7 +34,9 @@ Your SQL here.
+ 
+ sql_alter_tables_with_favorite_food = """
+ 
+-Your SQL here.
++ALTER TABLE animals ADD COLUMN favorite_food_id INTEGER;
++ALTER TABLE people ADD COLUMN favorite_food_id INTEGER;
++
+ 
+ """
+ 
+@@ -40,6 +46,6 @@ Your SQL here.
+ 
+ sql_select_all_vegetarian_pets = """
+ 
+-Your SQL here.
++SELECT a.name, f.name AS food_name FROM animals AS a JOIN favorite_foods AS f ON a.favorite_food_id = f.food_id WHERE f.vegetarian = 1;
+ 
+ """
+\ No newline at end of file
+diff --git a/part2/src/main/java/org/velezreyes/quiz/question6/Drink.java b/part2/src/main/java/org/velezreyes/quiz/question6/Drink.java
+index 61c1fdd..60690c1 100644
+--- a/part2/src/main/java/org/velezreyes/quiz/question6/Drink.java
++++ b/part2/src/main/java/org/velezreyes/quiz/question6/Drink.java
+@@ -4,4 +4,7 @@ public interface Drink {
+   public String getName();
+ 
+   public boolean isFizzy();
++
++  public int getPrice();
++
+ }
+\ No newline at end of file
+diff --git a/part2/src/main/java/org/velezreyes/quiz/question6/DrinkImpl.java b/part2/src/main/java/org/velezreyes/quiz/question6/DrinkImpl.java
+new file mode 100644
+index 0000000..f8530c0
+--- /dev/null
++++ b/part2/src/main/java/org/velezreyes/quiz/question6/DrinkImpl.java
+@@ -0,0 +1,31 @@
++package org.velezreyes.quiz.question6;
++
++public class DrinkImpl implements Drink{
++
++    private String name;
++    private boolean isFizzy;
++    private int price;
++
++
++    public DrinkImpl(String name, boolean isFizzy,int price) {
++        this.name = name;
++        this.isFizzy = isFizzy;
++        this.price = price;
++    }
++
++    @Override
++    public String getName() {
++        return this.name;
++    }
++
++    @Override
++    public boolean isFizzy() {
++        return this.isFizzy;
++    }
++
++    @Override
++    public int getPrice(){
++        return this.price;
++    }
++    
++}
+diff --git a/part2/src/main/java/org/velezreyes/quiz/question6/VendingMachineImpl.java b/part2/src/main/java/org/velezreyes/quiz/question6/VendingMachineImpl.java
+index 85742c4..d028260 100644
+--- a/part2/src/main/java/org/velezreyes/quiz/question6/VendingMachineImpl.java
++++ b/part2/src/main/java/org/velezreyes/quiz/question6/VendingMachineImpl.java
+@@ -1,9 +1,50 @@
+ package org.velezreyes.quiz.question6;
+ 
+-public class VendingMachineImpl {
++import java.util.ArrayList;
++import java.util.List;
++
++public class VendingMachineImpl implements VendingMachine {
++
++  private static VendingMachine instance;
++  private int quarters = 0;
++  private static final List<Drink> drinks = initializeDrinks();
++
++  private static List<Drink> initializeDrinks() {
++    List<Drink> drinkList = new ArrayList<>();
++    drinkList.add(new DrinkImpl("ScottCola", true, 3));
++    drinkList.add(new DrinkImpl("KarenTea", false, 4));
++    return drinkList;
++  }
+ 
+   public static VendingMachine getInstance() {
+-    // Fix me!
+-    return null;
++    if (instance == null) {
++      instance = new VendingMachineImpl();
++    }
++    return instance;
++  }
++
++  @Override
++  public void insertQuarter() {
++    this.quarters++;
++  }
++
++  @Override
++  public Drink pressButton(String name) throws NotEnoughMoneyException, UnknownDrinkException {
++
++    Drink drink = getDrink(name);
++
++    if (this.quarters < drink.getPrice()) {
++      throw new NotEnoughMoneyException();
++    }
++
++    this.quarters -= drink.getPrice();
++    return drink;
++  }
++
++  private Drink getDrink(String name) throws UnknownDrinkException {
++    return drinks.stream()
++        .filter(drink -> drink.getName().equals(name))
++        .findFirst()
++        .orElseThrow(UnknownDrinkException::new);
+   }
+ }
+diff --git a/part3/security_question.md b/part3/security_question.md
+new file mode 100644
+index 0000000..65a504f
+--- /dev/null
++++ b/part3/security_question.md
+@@ -0,0 +1,21 @@
++## System Security
++
++As the Head of Engineering for this innovative startup, the security audit will focus on the following key components:
++
++- **Mobile and Web Frontend:**
++  - **Injection Prevention:** Implement robust input validation for both the mobile and web frontend to prevent any form of code injection. Ensure data is sanitized before interacting with the backend.
++
++- **MySQL Database:**
++  - **Sensitive Data Exposure Mitigation:** Encrypt sensitive data, especially customer passwords, using secure encryption algorithms. Avoid storing passwords in plain text and ensure the database has appropriate access controls.
++
++- **Python Backend (FastAPI):**
++  - **Authentication Reinforcement:** Enforce strong authentication mechanisms, such as multi-factor authentication, especially for the 12 software engineers with full access.
++
++- **Access Control Strategies:**
++  - **Broken Access Control Mitigation:** Establish a solid session strategy using tokens or JWTs. Ensure endpoints in the backend are protected with appropriate permissions and roles to prevent unauthorized access.
++
++- **Third-Party Components:**
++  - **Vulnerability Management:** Regularly monitor and update third-party libraries used in the web frontend, mobile app, and backend. Keep them up-to-date with stable versions to mitigate vulnerabilities.
++
++- **Logging and Monitoring:**
++  - **Insufficient Logging & Monitoring Resolution:** Implement a robust logging strategy in the backend to accurately record executions and errors. This enhances visibility and aids in the timely detection of security incidents.
